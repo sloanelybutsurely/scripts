@@ -33,5 +33,21 @@ defmodule <%= @mod %> do
   end
 end
 
-System.argv()
-|> <%= @mod %>.main()
+if System.get_env("MIX_ENV") == "test" do
+  ExUnit.start()
+  defmodule <%= @mod %>Test do
+    use ExUnit.Case, async: true
+    import ExUnit.CaptureIO
+
+    test "prints usage message when no arguments are passed" do
+      assert capture_io(fn -> <%= @mod %>.main([]) end) =~ "Usage"
+    end
+
+    test "prints usage message when passed --help" do
+      assert capture_io(fn -> <%= @mod %>.main(["--help"]) end) =~ "Usage"
+    end
+  end
+else
+  System.argv()
+  |> <%= @mod %>.main()
+end
