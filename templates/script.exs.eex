@@ -1,0 +1,37 @@
+#!/usr/bin/env -S ERL_FLAGS=+B elixir
+Mix.install([])
+
+if System.get_env("DEPS_ONLY") == "true" do
+  System.halt(0)
+  Process.sleep(:infinity)
+end
+
+defmodule <%= @mod %> do
+  @moduledoc """
+
+  ## Usage
+
+      $ bin/<%= @script %> --help
+
+  """
+
+  @args [help: :boolean]
+  def main(args) do
+    {parsed, args} = OptionParser.parse!(args, strict: @args)
+    cmd(parsed, args)
+  end
+
+  defp cmd([help: true], _), do: IO.puts(@moduledoc)
+  defp cmd(_parsed, _args) do
+    IO.puts(@moduledoc)
+    stop(1)
+  end
+
+  defp stop(code) do
+    System.stop(code)
+    Process.sleep(:infinity)
+  end
+end
+
+System.argv()
+|> <%= @mod %>.main()
