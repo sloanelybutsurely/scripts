@@ -1,10 +1,12 @@
 #!/usr/bin/env -S ERL_FLAGS=+B elixir
 Mix.install([])
 
-if System.get_env("DEPS_ONLY") == "true" do
-  System.halt(0)
-  Process.sleep(:infinity)
-end
+<%= if @deps_only do %>
+  if System.get_env("DEPS_ONLY") == "true" do
+    System.halt(0)
+    Process.sleep(:infinity)
+  end
+<% end %>
 
 defmodule <%= @mod %> do
   @moduledoc """
@@ -33,21 +35,26 @@ defmodule <%= @mod %> do
   end
 end
 
-if System.get_env("MIX_ENV") == "test" do
-  ExUnit.start()
-  defmodule <%= @mod %>Test do
-    use ExUnit.Case, async: true
-    import ExUnit.CaptureIO
+<%= if @tests do %>
+  if System.get_env("MIX_ENV") == "test" do
+    ExUnit.start()
+    defmodule <%= @mod %>Test do
+      use ExUnit.Case, async: true
+      import ExUnit.CaptureIO
 
-    test "prints usage message when no arguments are passed" do
-      assert capture_io(fn -> <%= @mod %>.main([]) end) =~ "Usage"
-    end
+      test "prints usage message when no arguments are passed" do
+        assert capture_io(fn -> <%= @mod %>.main([]) end) =~ "Usage"
+      end
 
-    test "prints usage message when passed --help" do
-      assert capture_io(fn -> <%= @mod %>.main(["--help"]) end) =~ "Usage"
+      test "prints usage message when passed --help" do
+        assert capture_io(fn -> <%= @mod %>.main(["--help"]) end) =~ "Usage"
+      end
     end
+  else
+    System.argv()
+    |> <%= @mod %>.main()
   end
-else
+<% else %>
   System.argv()
   |> <%= @mod %>.main()
-end
+<% end %>
