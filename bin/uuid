@@ -1,0 +1,31 @@
+#!/usr/bin/env -S ERL_FLAGS=+B elixir
+Mix.install([
+  {:uniq, "~> 0.6.1"}
+])
+
+defmodule Uuid do
+  @moduledoc """
+  Generates a UUIDv4 using `Uniq`
+
+  ## Usage
+
+      $ bin/uuid --help
+
+  """
+
+  @args [help: :boolean]
+  def main(args) do
+    {parsed, args} = OptionParser.parse!(args, strict: @args)
+    cmd(parsed, args)
+  end
+
+  defp cmd([help: true], _), do: IO.puts(@moduledoc)
+
+  defp cmd(_parsed, _args) do
+    Uniq.UUID.uuid4()
+    |> IO.puts()
+  end
+end
+
+System.argv()
+|> Uuid.main()
