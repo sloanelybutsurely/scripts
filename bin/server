@@ -1,0 +1,26 @@
+#!/usr/bin/env bash -e
+
+dir=$(dirname "$0")
+cmd=$1
+script=$2
+args=${@:3}
+
+function start() {
+  echo "starting"
+  ERL_FLAGS=+B SERVER=true elixir --sname $script --no-halt "$dir/$script.exs" &
+}
+
+function stop() {
+
+}
+
+function rpc() {
+  # start
+  ERL_FLAGS=+B elixir --sname client --rpc-eval $script "Server.main(~w[$args])"
+}
+
+case $cmd in
+  "start") start;;
+  "stop") stop;;
+  "rpc") rpc;;
+esac
